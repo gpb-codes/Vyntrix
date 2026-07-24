@@ -1,17 +1,17 @@
 <div align="center">
 
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,30:8B5CF6,60:3B82F6,80:F59E0B,100:06B6D4&height=220&section=header&text=VYNTRIX%20MVP&fontSize=48&fontColor=8B5CF6&animation=fadeIn&fontAlignY=35&desc=ECOSISTEMA%20DEPORTIVO%20%7C%20GAMIFICACION%20%7C%20RANKINGS%20COMPETITIVOS&descSize=14&descAlignY=55&descAlign=center" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,30:8B5CF6,60:3B82F6,80:F59E0B,100:06B6D4&height=220&section=header&text=VYNTRIX%20MVP&fontSize=48&fontColor=8B5CF6&animation=fadeIn&fontAlignY=35&desc=ECOSISTEMA%20DEPORTIVO%20%E2%80%A2%20GAMIFICACION%20%E2%80%A2%20RANKINGS%20COMPETITIVOS&descSize=14&descAlignY=55&descAlign=center" width="100%" />
 
-  <br/>
+<br/>
 
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=18&duration=3000&pause=1000&color=8B5CF6&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=100&lines=Seguimiento+de+entrenamiento;Gamificaci%C3%B3n+y+logros;Rankings+competitivos+en+tiempo+real" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=18&duration=3000&pause=1000&color=8B5CF6&center=true&vCenter=true&multiline=true&repeat=true&width=600&height=100&lines=Seguimiento+de+entrenamiento;Gamificaci%C3%B3n+y+logros;Rankings+competitivos+en+tiempo+real" alt="Typing SVG" />
 
-  <br/>
+<br/>
 
-  <img src="https://img.shields.io/badge/Estado-Planificaci%C3%B3n-8B5CF6?style=for-the-badge&logo=rocket&logoColor=white" />
-  <img src="https://img.shields.io/badge/Version-1.0-3B82F6?style=for-the-badge&logo=git&logoColor=white" />
-  <img src="https://img.shields.io/badge/PLAN--EQ--001-F59E0B?style=for-the-badge&logo=databricks&logoColor=black" />
-  <img src="https://img.shields.io/badge/REQ--MVP--001-06B6D4?style=for-the-badge&logo=markdown&logoColor=white" />
+<img src="https://img.shields.io/badge/Estado-Planificaci%C3%B3n-8B5CF6?style=for-the-badge&logo=rocket&logoColor=white" />
+<img src="https://img.shields.io/badge/Version-1.0-3B82F6?style=for-the-badge&logo=git&logoColor=white" />
+<img src="https://img.shields.io/badge/PLAN--EQ--001-F59E0B?style=for-the-badge&logo=databricks&logoColor=black" />
+<img src="https://img.shields.io/badge/REQ--MVP--001-06B6D4?style=for-the-badge&logo=markdown&logoColor=white" />
 
 </div>
 
@@ -21,20 +21,21 @@
 
 ## Sobre Vyntrix
 
+> [!IMPORTANT]
 > Plataforma deportiva que combina **seguimiento de entrenamiento**, **gamificación** y **rankings competitivos** para llevar tu rendimiento al siguiente nivel.
 
 Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y niveles, competir en rankings y enfrentarse a retos. Todo en una experiencia móvil fluida construida con **Flutter** y potenciada por **NestJS** sobre **PostgreSQL**.
 
 <div align="center">
 
-  <img src="https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white" />
-  <img src="https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white" />
-  <img src="https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" />
-  <img src="https://img.shields.io/badge/AWS-FF9900?style=flat&logo=amazonaws&logoColor=black" />
+<img src="https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white" />
+<img src="https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white" />
+<img src="https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white" />
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white" />
+<img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white" />
+<img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white" />
+<img src="https://img.shields.io/badge/AWS-FF9900?style=flat&logo=amazonaws&logoColor=black" />
 
 </div>
 
@@ -42,7 +43,7 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
 
 ---
 
-## Stack Tecnologico
+## Stack Tecnológico
 
 <div align="center">
 
@@ -58,22 +59,23 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
 
 ## Arquitectura
 
-<div align="center">
-
+```mermaid
+flowchart LR
+    subgraph Frontend["Frontend Móvil"]
+        FL[Flutter]
+    end
+    subgraph Backend["Backend API"]
+        NJ[NestJS]
+        JW[JWT / OAuth2]
+    end
+    subgraph Datos["Base de Datos"]
+        PG[(PostgreSQL)]
+    end
+    FL -->|HTTP REST| NJ
+    NJ -->|TypeORM| PG
+    NJ --> JW
+    FL -.->|"Token"| JW
 ```
-  ┌─────────────┐     ┌──────────────┐     ┌────────────┐
-  │   Flutter    │────▶│   NestJS     │────▶│ PostgreSQL │
-  │  (Mobile)    │◀────│  (Backend)   │◀────│    (DB)    │
-  └─────────────┘     └──────────────┘     └────────────┘
-       │                     │                    │
-       │              ┌──────┴──────┐             │
-       │              │   JWT /     │             │
-       └──────────────│   OAuth2    │─────────────┘
-                      │  (Auth)     │
-                      └─────────────┘
-```
-
-</div>
 
 <br/>
 
@@ -146,7 +148,7 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
 
 ---
 
-## Modulos Funcionales
+## Módulos Funcionales
 
 <div align="center">
 
@@ -189,7 +191,27 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
 
 ---
 
-## Roadmap
+## Dependencias entre Módulos
+
+```mermaid
+flowchart TD
+    DB[(Migraciones DB)] --> RF01[RF-01 Auth / Perfil]
+    RF01 --> RF02[RF-02 Entrenamientos]
+    RF02 --> RF03[RF-03 Puntos / Niveles]
+    RF01 --> RF04[RF-04 Rankings]
+    RF02 --> RF04
+    RF03 --> RF04
+    RF01 --> RF05[RF-05 Retos]
+    RF02 --> RF05
+    RF02 --> RF06[RF-06 Estadísticas]
+    RF03 --> RF06
+```
+
+<br/>
+
+---
+
+## Hoja de Ruta
 
 <div align="center">
 
@@ -201,10 +223,10 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
         <br/>
         <img src="https://img.shields.io/badge/Semanas_1--2-3B82F6?style=flat" />
         <br/><br/>
-        <sub>✔ Esquema DB y migraciones</sub><br/>
-        <sub>⬤ API REST entrenamientos</sub><br/>
-        <sub>⬤ Pantalla Home Flutter</sub><br/>
-        <sub>⬤ Registro y autenticación</sub><br/>
+        :white_check_mark: Esquema DB y migraciones<br/>
+        :hourglass: API REST entrenamientos<br/>
+        :hourglass: Pantalla Home Flutter<br/>
+        :hourglass: Registro y autenticación<br/>
       </div>
     </td>
     <td width="33%" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 20px; border: 2px solid #F59E0B;" valign="top">
@@ -213,10 +235,10 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
         <br/>
         <img src="https://img.shields.io/badge/Semanas_3--4-06B6D4?style=flat" />
         <br/><br/>
-        <sub>⬤ API retos y sistema de puntos</sub><br/>
-        <sub>⬤ Perfil de usuario y rankings</sub><br/>
-        <sub>⬤ Panel de estadísticas</sub><br/>
-        <sub>⬤ Consultas optimizadas</sub><br/>
+        :hourglass: API retos y sistema de puntos<br/>
+        :hourglass: Perfil de usuario y rankings<br/>
+        :hourglass: Panel de estadísticas<br/>
+        :hourglass: Consultas optimizadas<br/>
       </div>
     </td>
     <td width="33%" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 20px; border: 2px solid #06B6D4;" valign="top">
@@ -225,33 +247,14 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
         <br/>
         <img src="https://img.shields.io/badge/Semanas_5--6-22C55E?style=flat" />
         <br/><br/>
-        <sub>⬤ Integración front‑back</sub><br/>
-        <sub>⬤ QA y pruebas de usuario</sub><br/>
-        <sub>⬤ Ajustes finales</sub><br/>
-        <sub>⬤ Despliegue</sub><br/>
+        :hourglass: Integración front‑back<br/>
+        :hourglass: QA y pruebas de usuario<br/>
+        :hourglass: Ajustes finales<br/>
+        :hourglass: Despliegue<br/>
       </div>
     </td>
   </tr>
 </table>
-
-</div>
-
-<br/>
-
----
-
-## Matriz de Dependencias
-
-<div align="center">
-
-| Módulo | Depende de | Entregable |
-|--------|------------|------------|
-| <img src="https://img.shields.io/badge/RF--01-8B5CF6?style=flat&logo=key&logoColor=white" /> | Migraciones DB | API register / login + UI registro |
-| <img src="https://img.shields.io/badge/RF--02-3B82F6?style=flat&logo=strava&logoColor=white" /> | RF-01 | API CRUD + formulario en app |
-| <img src="https://img.shields.io/badge/RF--03-F59E0B?style=flat&logo=levelsdotfyi&logoColor=white" /> | RF-02 | Motor de reglas + UI progreso |
-| <img src="https://img.shields.io/badge/RF--04-06B6D4?style=flat&logo=leaderprice&logoColor=white" /> | RF-01, RF-02, RF-03 | Vista de tabla clasificatoria |
-| <img src="https://img.shields.io/badge/RF--05-22C55E?style=flat&logo=target&logoColor=white" /> | RF-01, RF-02 | Lógica de retos + UI desafíos |
-| <img src="https://img.shields.io/badge/RF--06-EF4444?style=flat&logo=chartbar&logoColor=white" /> | RF-02, RF-03 | Dashboard con charts |
 
 </div>
 
@@ -280,7 +283,7 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
       <div align="center">
         <img src="https://img.shields.io/badge/Onboarding_T%C3%A9cnico-F59E0B?style=for-the-badge&logo=readthedocs&logoColor=black" />
         <br/><br/>
-        <sub>Plan de incorporación full‑stack: PostgreSQL · React · NestJS · Patrones</sub>
+        <sub>Plan de incorporación full‑stack: PostgreSQL, React, NestJS y patrones</sub>
         <br/><br/>
         <a href="ONBOARDING.md">
           <img src="https://img.shields.io/badge/Ver_Plan-F59E0B?style=flat&logo=bookstack&logoColor=black" />
@@ -336,11 +339,23 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
       <br/><br/>
       <a href="https://nodejs.org/en/docs/"><img src="https://img.shields.io/badge/Docs_Node-339933?style=flat&logo=bookstack&logoColor=white" /></a>
       <a href="https://www.typescriptlang.org/docs/"><img src="https://img.shields.io/badge/Docs_TS-3178C6?style=flat&logo=bookstack&logoColor=white" /></a>
+      <a href="https://react.dev/learn"><img src="https://img.shields.io/badge/Docs_React-61DAFB?style=flat&logo=react&logoColor=black" /></a>
     </td>
   </tr>
 </table>
 
 </div>
+
+<br/>
+
+---
+
+## Guías del Repositorio
+
+| Guía | Descripción |
+|------|-------------|
+| [`GITHUB_FLOW.md`](GITHUB_FLOW.md) | Flujo de trabajo con ramas, PRs y despliegue continuo |
+| [`ONBOARDING.md`](ONBOARDING.md) | Plan de incorporación técnica full-stack |
 
 <br/>
 
@@ -397,16 +412,16 @@ Vyntrix permite a los deportistas registrar sus entrenamientos, ganar puntos y n
 
 <div align="center">
 
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,25:8B5CF6,50:3B82F6,75:F59E0B,100:06B6D4&height=100&section=footer" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,25:8B5CF6,50:3B82F6,75:F59E0B,100:06B6D4&height=100&section=footer" width="100%" />
 
-  <br/>
+<br/>
 
-  <sub><b>v1.0</b> · Basado en REQ-MVP-001 · Julio 2026</sub>
-  <br/>
-  <sub>
-    <img src="https://img.shields.io/badge/GITHUB_FLOW-181717?style=flat&logo=github&logoColor=white" />
-    ·
-    <a href="GITHUB_FLOW.md">Ver guía</a>
-  </sub>
+<sub><b>v1.0</b> · Basado en REQ-MVP-001 · Julio 2026</sub>
+<br/>
+<sub>
+<img src="https://img.shields.io/badge/GITHUB_FLOW-181717?style=flat&logo=github&logoColor=white" />
+·
+<a href="GITHUB_FLOW.md">Ver guía</a>
+</sub>
 
 </div>
