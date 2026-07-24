@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vyntrix — Planificación de Equipos MVP</title>
+<style>
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  body{
+    background: #0A0810;
+    color: #E8E3D8;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+  }
+
+  body::before{
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 640px 520px at 12% 18%, rgba(124, 58, 237, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 480px 480px at 88% 72%, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .topbar{
+    position: sticky; top: 0; z-index: 50;
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10, 8, 16, 0.85);
+    backdrop-filter: blur(28px) saturate(1.4);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+  }
+  .topbar .logo{ font-weight: 700; font-size: 1rem; letter-spacing: 0.12em; color: #E8E3D8; }
+  .topbar .logo span{ color: #D4AF37; }
+  .topbar .meta{ font-size: 0.58rem; color: rgba(232, 227, 216, 0.25); display: flex; gap: 16px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .topbar .meta b{ color: rgba(212, 175, 55, 0.45); font-weight: 500; }
+  @media (max-width: 640px){ .topbar .meta span:nth-child(2), .topbar .meta span:nth-child(3){ display: none; } }
+
+  .hero{
+    position: relative; z-index: 1;
+    padding: 60px 24px 40px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.03);
+  }
+  .hero-inner{ max-width: 1100px; margin: 0 auto; }
+
+  .hero-flex{ display: flex; align-items: flex-start; gap: 40px; }
+  @media (max-width: 720px){ .hero-flex{ flex-direction: column; gap: 20px; } }
+
+  .hero-main{ flex: 1; }
+  .hero-main .label{
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.22em;
+    color: rgba(212, 175, 55, 0.4); margin-bottom: 12px; font-weight: 500;
+  }
+  .hero-main h1{
+    font-size: clamp(1.6rem, 4.5vw, 2.4rem); font-weight: 700; line-height: 1.05;
+    color: #F0ECE4; letter-spacing: -0.02em;
+  }
+  .hero-main h1 em{
+    font-style: normal;
+    background: linear-gradient(135deg, #D4AF37 0%, #A07D2C 60%, #D4AF37 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-main p{
+    margin-top: 12px; color: rgba(232, 227, 216, 0.5);
+    max-width: 520px; font-size: 0.82rem; line-height: 1.6;
+  }
+  .hero-main .tip{
+    margin-top: 14px; font-size: 0.72rem; color: rgba(212, 175, 55, 0.35);
+    padding: 10px 14px; border-left: 2px solid rgba(212, 175, 55, 0.08);
+    background: rgba(18, 15, 26, 0.3); border-radius: 0 6px 6px 0;
+  }
+  .hero-main .tip b{ color: rgba(212, 175, 55, 0.55); font-weight: 500; }
+
+  .hero-stats{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; min-width: 200px; }
+  @media (max-width: 720px){ .hero-stats{ min-width: unset; grid-template-columns: repeat(4,1fr); } }
+  @media (max-width: 480px){ .hero-stats{ grid-template-columns: 1fr 1fr; } }
+  .hero-stats .stat{
+    background: rgba(18, 15, 26, 0.35); border: 1px solid rgba(212, 175, 55, 0.04);
+    border-radius: 6px; padding: 10px 14px; text-align: center;
+  }
+  .hero-stats .stat .num{
+    font-size: clamp(1rem, 2.5vw, 1.2rem); font-weight: 700;
+    background: linear-gradient(135deg, #D4AF37 0%, #B8942E 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-stats .stat .lbl{
+    font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: rgba(232, 227, 216, 0.25); margin-top: 3px;
+  }
+
+  .wrap{
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto; padding: 0 24px;
+  }
+  @media (min-width: 768px){ .wrap{ padding: 0 48px; } }
+
+  .section{ padding: 40px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.02); }
+  .section:last-child{ border-bottom: none; }
+  @media (min-width: 768px){ .section{ padding: 48px 0; } }
+
+  .s-head{
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .s-head .num{
+    font-size: 0.6rem; font-weight: 600; color: rgba(212, 175, 55, 0.3);
+    font-variant-numeric: tabular-nums;
+  }
+  .s-head .line{ width: 2px; height: 16px; border-radius: 1px; background: linear-gradient(180deg, rgba(124,58,237,0.2), transparent); flex-shrink: 0; }
+  .s-head h2{ font-size: clamp(0.95rem, 2vw, 1.08rem); font-weight: 600; color: #F0ECE4; letter-spacing: -0.01em; }
+  .s-head .tag{ margin-left: auto; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(232,227,216,0.2); padding: 2px 10px; border: 1px solid rgba(212,175,55,0.04); border-radius: 4px; white-space: nowrap; }
+
+  p{ color: rgba(232, 227, 216, 0.5); max-width: 700px; font-size: 0.82rem; line-height: 1.7; }
+
+  .team-grid{ display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 20px; }
+  @media (min-width: 480px){ .team-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 900px){ .team-grid{ grid-template-columns: repeat(4, 1fr); } }
+
+  .tcard{
+    background: rgba(18, 15, 26, 0.4); backdrop-filter: blur(14px);
+    border: 1px solid rgba(212, 175, 55, 0.04); border-radius: 8px;
+    padding: 18px; transition: all 0.3s;
+  }
+  .tcard:hover{ border-color: rgba(212, 175, 55, 0.08); transform: translateY(-2px); }
+  .tcard .tnum{ font-size: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(212,175,55,0.3); display: block; margin-bottom: 8px; }
+  .tcard .tpeople{ font-size: 0.82rem; font-weight: 600; color: #F0ECE4; margin-bottom: 2px; }
+  .tcard .tpeople .fe{ color: rgba(212, 175, 55, 0.55); }
+  .tcard .tpeople .fs{ color: rgba(167, 139, 250, 0.55); }
+  .tcard .trole{ font-size: 0.65rem; color: rgba(232, 227, 216, 0.35); margin-bottom: 8px; }
+  .tcard .tdesc{ font-size: 0.7rem; color: rgba(232, 227, 216, 0.4); line-height: 1.5; }
+  .tcard .tbadges{ margin-top: 10px; display: flex; flex-wrap: wrap; gap: 3px; }
+  .tcard .tbadges span{ font-size: 0.5rem; font-weight: 600; padding: 2px 8px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .tcard .tbadges .b-fs{ background: rgba(124,58,237,0.08); color: rgba(167,139,250,0.55); border: 1px solid rgba(124,58,237,0.08); }
+  .tcard .tbadges .b-fe{ background: rgba(212,175,55,0.06); color: rgba(212,175,55,0.45); border: 1px solid rgba(212,175,55,0.06); }
+  .tcard .tbadges .b-be{ background: rgba(124,58,237,0.05); color: rgba(167,139,250,0.4); border: 1px solid rgba(124,58,237,0.05); }
+  .tcard .tbadges .b-db{ background: rgba(212,175,55,0.03); color: rgba(232,227,216,0.35); border: 1px solid rgba(212,175,55,0.03); }
+
+  .detail-card{
+    background: rgba(18, 15, 26, 0.35); backdrop-filter: blur(14px);
+    border: 1px solid rgba(212, 175, 55, 0.04); border-radius: 8px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  @media (min-width: 768px){ .detail-card{ padding: 28px; margin-bottom: 20px; } }
+  .detail-card:hover{ border-color: rgba(212, 175, 55, 0.06); }
+
+  .detail-card .d-top{ display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .detail-card .d-top .d-team{ font-size: 0.72rem; font-weight: 600; color: #F0ECE4; padding: 3px 12px; border-radius: 5px; background: rgba(10,8,16,0.4); border: 1px solid rgba(212,175,55,0.05); }
+  .detail-card .d-top .d-members{ display: flex; gap: 4px; flex-wrap: wrap; }
+  .detail-card .d-top .d-members span{ font-size: 0.6rem; padding: 2px 10px; border-radius: 100px; border: 1px solid rgba(212,175,55,0.05); background: rgba(10,8,16,0.25); color: rgba(232,227,216,0.4); }
+  .detail-card .d-top .d-modules{ margin-left: auto; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(212,175,55,0.3); padding: 2px 10px; border: 1px solid rgba(212,175,55,0.04); border-radius: 4px; white-space: nowrap; }
+  @media (max-width: 480px){ .detail-card .d-top .d-modules{ margin-left: 0; width: 100%; } }
+
+  .detail-card .d-title{ font-size: clamp(0.9rem, 2vw, 1rem); font-weight: 600; color: #F0ECE4; letter-spacing: -0.01em; margin-bottom: 2px; }
+  .detail-card .d-sub{ font-size: 0.72rem; color: rgba(232, 227, 216, 0.35); margin-bottom: 16px; }
+
+  .d-mods{ display: flex; flex-direction: column; gap: 12px; }
+  .d-mod{ padding: 12px 0 12px 14px; border-left: 2px solid rgba(212,175,55,0.04); }
+  .d-mod .dm-head{ display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .d-mod .dm-head .dm-code{ font-size: 0.52rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 3px; background: rgba(124,58,237,0.05); color: rgba(167,139,250,0.45); }
+  .d-mod .dm-head .dm-code.gold{ background: rgba(212,175,55,0.03); color: rgba(212,175,55,0.35); }
+  .d-mod .dm-head h4{ font-size: 0.8rem; font-weight: 600; color: #E4DED2; letter-spacing: -0.01em; }
+  .d-mod .dm-desc{ font-size: 0.72rem; color: rgba(232, 227, 216, 0.4); line-height: 1.6; }
+  .d-mod .dm-done{ margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .d-mod .dm-done span{ font-size: 0.58rem; padding: 2px 8px; border-radius: 4px; background: rgba(212,175,55,0.03); color: rgba(212,175,55,0.3); border: 1px solid rgba(212,175,55,0.03); }
+  .d-mod .dm-done .check{ background: transparent; border: none; color: rgba(167,139,250,0.3); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0; }
+
+  .d-badges{ margin-top: 14px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .d-badges span{ font-size: 0.5rem; font-weight: 600; padding: 2px 10px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .d-badges .b-fe{ background: rgba(212,175,55,0.05); color: rgba(212,175,55,0.4); border: 1px solid rgba(212,175,55,0.05); }
+  .d-badges .b-be{ background: rgba(124,58,237,0.04); color: rgba(167,139,250,0.35); border: 1px solid rgba(124,58,237,0.04); }
+  .d-badges .b-db{ background: rgba(212,175,55,0.03); color: rgba(232,227,216,0.3); border: 1px solid rgba(212,175,55,0.03); }
+
+  .d-callout{
+    margin-top: 14px; background: rgba(18, 15, 26, 0.3);
+    border: 1px solid rgba(124, 58, 237, 0.04); border-left: 2px solid rgba(124,58,237,0.15);
+    border-radius: 6px; padding: 12px 16px;
+    font-size: 0.72rem; color: rgba(232, 227, 216, 0.42); line-height: 1.6;
+  }
+  .d-callout b{ color: rgba(212, 175, 55, 0.45); font-weight: 500; }
+  .d-callout .howto{ margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(212,175,55,0.03); }
+  .d-callout .howto .step{ font-size: 0.65rem; color: rgba(232,227,216,0.35); padding: 3px 0; display: flex; align-items: center; gap: 8px; }
+  .d-callout .howto .step .snum{ width: 14px; height: 14px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 600; background: rgba(124,58,237,0.07); color: rgba(167,139,250,0.45); flex-shrink: 0; }
+
+  .table-wrap{ overflow-x: auto; margin-top: 16px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.02); }
+  table{ width: 100%; border-collapse: collapse; min-width: 500px; }
+  th{ text-align: left; font-size: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(212,175,55,0.25); padding: 10px 14px; background: rgba(10,8,16,0.25); border-bottom: 1px solid rgba(212,175,55,0.03); }
+  td{ padding: 10px 14px; border-bottom: 1px solid rgba(212,175,55,0.02); font-size: 0.72rem; color: rgba(232,227,216,0.42); background: rgba(18,15,26,0.1); }
+  tr:hover td{ background: rgba(124,58,237,0.025); }
+  td.mono{ font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.65rem; color: rgba(212,175,55,0.35); word-break: break-all; }
+
+  .sprint-grid{ display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+  @media (min-width: 640px){ .sprint-grid{ grid-template-columns: 1fr 1fr 1fr; } }
+
+  .sprint-box{
+    background: rgba(18, 15, 26, 0.3); backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.03); border-radius: 8px; padding: 18px;
+  }
+  .sprint-box .sb-head{ background: rgba(10,8,16,0.3); border-radius: 5px; padding: 8px 12px; margin-bottom: 12px; }
+  .sprint-box .sb-head .sb-num{ font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(212,175,55,0.35); }
+  .sprint-box .sb-head .sb-when{ font-size: 0.52rem; color: rgba(232,227,216,0.22); margin-top: 2px; }
+  .sprint-box ul{ list-style: none; }
+  .sprint-box ul li{ font-size: 0.7rem; color: rgba(232,227,216,0.35); padding: 5px 0 5px 12px; position: relative; border-bottom: 1px solid rgba(212,175,55,0.02); }
+  .sprint-box ul li:last-child{ border-bottom: none; }
+  .sprint-box ul li::before{ content: ''; position: absolute; left: 0; top: 11px; width: 3px; height: 3px; border-radius: 50%; background: rgba(212,175,55,0.1); }
+  .sprint-box ul li .hl{ color: rgba(212,175,55,0.4); }
+
+  .sprint-footer{ display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .sprint-footer .dot{ width: 6px; height: 6px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.05); background: rgba(10,8,16,0.4); }
+  .sprint-footer .dot.active{ background: rgba(212,175,55,0.15); border-color: rgba(212,175,55,0.12); }
+  .sprint-footer .sp-line{ width: 24px; height: 1px; background: rgba(212,175,55,0.04); }
+  .sprint-footer .sp-label{ font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(232,227,216,0.15); }
+
+  .tech-grid{ display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+  @media (min-width: 480px){ .tech-grid{ grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 900px){ .tech-grid{ grid-template-columns: repeat(3, 1fr); } }
+
+  .tech-card{
+    background: rgba(18, 15, 26, 0.35); backdrop-filter: blur(14px);
+    border: 1px solid rgba(212, 175, 55, 0.04); border-radius: 10px;
+    padding: 20px; transition: all 0.3s;
+  }
+  .tech-card:hover{ border-color: rgba(212, 175, 55, 0.08); }
+
+  .tech-card .tc-head{ display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .tech-card .tc-head .tc-icon{
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.7rem; flex-shrink: 0;
+  }
+  .tech-card .tc-head .tc-info .tc-name{ font-size: 0.85rem; font-weight: 600; color: #F0ECE4; }
+  .tech-card .tc-head .tc-info .tc-role{ font-size: 0.6rem; color: rgba(232,227,216,0.3); }
+
+  .tech-card .tc-docs{ margin: 12px 0; }
+  .tech-card .tc-docs a{
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; margin: 4px 0;
+    background: rgba(10,8,16,0.35); border: 1px solid rgba(212,175,55,0.04);
+    border-radius: 5px; color: rgba(212,175,55,0.45);
+    text-decoration: none; font-size: 0.68rem;
+    transition: all 0.2s;
+  }
+  .tech-card .tc-docs a:hover{
+    border-color: rgba(212,175,55,0.1);
+    color: rgba(212,175,55,0.65);
+    background: rgba(10,8,16,0.55);
+  }
+  .tech-card .tc-docs a .link-icon{
+    font-size: 0.6rem; color: rgba(212,175,55,0.25);
+    flex-shrink: 0;
+  }
+
+  .tech-card .tc-videos{ margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(212,175,55,0.03); }
+  .tech-card .tc-videos .vid-label{
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: rgba(232,227,216,0.18); margin-bottom: 8px;
+  }
+  .tech-card .tc-videos a{
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 8px; margin: 3px 0;
+    color: rgba(232,227,216,0.3); text-decoration: none;
+    font-size: 0.62rem; border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .tech-card .tc-videos a:hover{
+    background: rgba(10,8,16,0.35);
+    color: rgba(232,227,216,0.45);
+  }
+  .tech-card .tc-videos a .play-icon{ font-size: 0.55rem; color: rgba(212,175,55,0.2); flex-shrink: 0; }
+
+  footer{
+    position: relative; z-index: 1;
+    text-align: center; padding: 24px;
+    font-size: 0.55rem; color: rgba(232, 227, 216, 0.12);
+    letter-spacing: 0.06em; border-top: 1px solid rgba(212,175,55,0.02);
+  }
+  footer b{ color: rgba(212,175,55,0.2); font-weight: 500; }
+
+  ::selection{ background: rgba(212,175,55,0.12); color: #F0ECE4; }
+  ::-webkit-scrollbar{ width: 3px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(212,175,55,0.04); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Vyntr<span>ix</span></div>
+  <div class="meta">
+    <span>Doc · <b>PLAN-EQ-001</b></span>
+    <span>Rev · <b>1.0</b></span>
+    <span>Jul · <b>2026</b></span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-flex">
+      <div class="hero-main">
+        <div class="label">Planificación de equipos</div>
+        <h1>Cómo trabajar en el <em>MVP de Vyntrix</em></h1>
+        <p>Esta guía explica qué equipo hace cada funcionalidad, cómo empezar y qué deben entregar. Si eres desarrollador junior, aquí encuentras todo lo que necesitas saber.</p>
+        <div class="tip">
+          <b>Cómo usar esta guía:</b> Primero revisa la distribución de equipos. Después busca tu grupo y los módulos que debes implementar. Al final revisa los sprints para las fechas y la sección de recursos con documentación y videos para aprender las tecnologías.
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="num">4</div><div class="lbl">Grupos</div></div>
+        <div class="stat"><div class="num">6</div><div class="lbl">Módulos</div></div>
+        <div class="stat"><div class="num">5</div><div class="lbl">Devs</div></div>
+        <div class="stat"><div class="num">3</div><div class="lbl">Sprints</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ===== 01: EQUIPOS ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">01</span><span class="line"></span>
+      <h2>Los 4 equipos de trabajo</h2>
+      <span class="tag">Quién hace qué</span>
+    </div>
+    <p>Hay <b style="color:rgba(212,175,55,0.5);font-weight:500;">4 grupos</b> con <b style="color:rgba(212,175,55,0.5);font-weight:500;">5 desarrolladores</b>. Gabriel es full-stack y participa en todos los grupos como coordinador. Cada equipo tiene su especialidad y módulos asignados.</p>
+
+    <div class="team-grid">
+      <div class="tcard" style="border-top: 3px solid rgba(124,58,237,0.2);">
+        <span class="tnum">Grupo 01</span>
+        <div class="tpeople"><span class="fs">Gabriel</span></div>
+        <div class="trole">Full-Stack · Coordinador</div>
+        <div class="tdesc">Participa en todos los grupos. Revisa código, ayuda con dudas y asegura que todo funcione junto.</div>
+        <div class="tbadges"><span class="b-fs">Full-Stack</span><span class="b-fe">FE</span><span class="b-be">BE</span><span class="b-db">DB</span></div>
+      </div>
+      <div class="tcard" style="border-top: 3px solid rgba(212,175,55,0.14);">
+        <span class="tnum">Grupo 02</span>
+        <div class="tpeople"><span class="fe">Pablo</span> · <span class="fe">Cristóbal</span></div>
+        <div class="trole">Frontend</div>
+        <div class="tdesc">Construyen las pantallas de la app en Flutter. Todo lo que el usuario ve y toca.</div>
+        <div class="tbadges"><span class="b-fe">Frontend</span></div>
+      </div>
+      <div class="tcard" style="border-top: 3px solid rgba(124,58,237,0.12);">
+        <span class="tnum">Grupo 03</span>
+        <div class="tpeople">Vicente · <span class="fs">Gabriel</span></div>
+        <div class="trole">Backend Central</div>
+        <div class="tdesc">Crean las APIs en NestJS. La lógica del negocio y la conexión con la base de datos.</div>
+        <div class="tbadges"><span class="b-be">Backend</span></div>
+      </div>
+      <div class="tcard" style="border-top: 3px solid rgba(212,175,55,0.08);">
+        <span class="tnum">Grupo 04</span>
+        <div class="tpeople">Fernando · <span class="fs">Gabriel</span></div>
+        <div class="trole">Base de Datos</div>
+        <div class="tdesc">Diseñan las tablas y consultas en PostgreSQL. Ahí se guarda toda la información.</div>
+        <div class="tbadges"><span class="b-db">Base de Datos</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 02: FULL-STACK ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">02</span><span class="line"></span>
+      <h2>Gabriel — Perfil de Usuario y Estadísticas</h2>
+      <span class="tag">RF-01 · RF-06</span>
+    </div>
+
+    <div class="detail-card" style="border-left: 3px solid rgba(124,58,237,0.2);">
+      <div class="d-top">
+        <span class="d-team">Gabriel</span>
+        <div class="d-members"><span>Full-Stack</span></div>
+        <span class="d-modules">Módulos: RF-01, RF-06</span>
+      </div>
+      <div class="d-title">Registro, Perfil Deportivo y Panel de Rendimiento</div>
+      <div class="d-sub">Implementación completa: pantallas (Flutter) + APIs (NestJS) + tablas (PostgreSQL)</div>
+
+      <div class="d-mods">
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-01</span>
+            <h4>Cuenta y perfil deportivo</h4>
+          </div>
+          <div class="dm-desc">Registro de usuarios, selección de deportes, objetivos personales y perfil completo con nombre, edad, deporte principal, nivel y estadísticas.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Usuario se registra</span>
+            <span>Elige deportes</span>
+            <span>Ve su perfil</span>
+            <span>Datos guardados en DB</span>
+          </div>
+        </div>
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-06</span>
+            <h4>Panel de rendimiento</h4>
+          </div>
+          <div class="dm-desc">Dashboard con resumen de entrenamientos realizados, tiempo total, progreso de puntos, posición en rankings y gráfica de evolución.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Dashboard carga datos reales</span>
+            <span>Gráfica muestra evolución</span>
+            <span>Puntos y ranking visibles</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-badges"><span class="b-fe">Frontend</span><span class="b-be">Backend</span><span class="b-db">DB</span></div>
+
+      <div class="d-callout">
+        <b>Cómo empezar:</b>
+        <div class="howto">
+          <div class="step"><span class="snum">1</span> Coordinar con Fernando (DB) las tablas de usuarios</div>
+          <div class="step"><span class="snum">2</span> Crear API de registro y login en NestJS</div>
+          <div class="step"><span class="snum">3</span> Crear pantalla de registro y perfil en Flutter</div>
+          <div class="step"><span class="snum">4</span> Conectar frontend con backend</div>
+          <div class="step"><span class="snum">5</span> Construir dashboard de estadísticas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 03: FRONTEND ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">03</span><span class="line"></span>
+      <h2>Pablo y Cristóbal — Gamificación y Rankings</h2>
+      <span class="tag">RF-03 · RF-04</span>
+    </div>
+
+    <div class="detail-card" style="border-left: 3px solid rgba(212,175,55,0.14);">
+      <div class="d-top">
+        <span class="d-team">Pablo · Cristóbal</span>
+        <div class="d-members"><span>Frontend</span></div>
+        <span class="d-modules">Módulos: RF-03, RF-04</span>
+      </div>
+      <div class="d-title">Sistema de Puntos, Niveles, Logros y Rankings</div>
+      <div class="d-sub">Solo frontend (Flutter). Consumen APIs creadas por Backend y Full-Stack.</div>
+
+      <div class="d-mods">
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-03</span>
+            <h4>Puntos, niveles y logros</h4>
+          </div>
+          <div class="dm-desc">Mostrar los puntos del usuario, su nivel (Principiante, Competidor, Profesional, Elite), la barra de progreso hacia el siguiente nivel y los logros desbloqueados.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Barra de progreso animada</span>
+            <span>Nivel se actualiza solo</span>
+            <span>Logros con iconos</span>
+            <span>Datos vienen de API real</span>
+          </div>
+        </div>
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-04</span>
+            <h4>Rankings competitivos</h4>
+          </div>
+          <div class="dm-desc">Tabla de posiciones: ranking global, ranking por deporte y ranking de amigos. El usuario debe ver su posición y los primeros puestos.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Ranking global funciona</span>
+            <span>Filtro por deporte</span>
+            <span>Usuario ve su posición</span>
+            <span>Datos vienen de API real</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-badges"><span class="b-fe">Frontend</span></div>
+
+      <div class="d-callout">
+        <b>Cómo empezar:</b>
+        <div class="howto">
+          <div class="step"><span class="snum">1</span> Esperar a que Backend entregue las APIs de puntos (RF-03)</div>
+          <div class="step"><span class="snum">2</span> Esperar a que Full-Stack entregue la API de rankings (RF-04)</div>
+          <div class="step"><span class="snum">3</span> Mientras tanto, maquetar las pantallas con datos falsos (mock)</div>
+          <div class="step"><span class="snum">4</span> Conectar cada pantalla con su API real</div>
+          <div class="step"><span class="snum">5</span> Probar que los datos se vean correctamente</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 04: BACKEND ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">04</span><span class="line"></span>
+      <h2>Vicente y Gabriel — Entrenamientos y Retos</h2>
+      <span class="tag">RF-02 · RF-05</span>
+    </div>
+
+    <div class="detail-card" style="border-left: 3px solid rgba(124,58,237,0.12);">
+      <div class="d-top">
+        <span class="d-team">Vicente · Gabriel</span>
+        <div class="d-members"><span>Backend</span></div>
+        <span class="d-modules">Módulos: RF-02, RF-05</span>
+      </div>
+      <div class="d-title">API de Entrenamientos y Sistema de Retos</div>
+      <div class="d-sub">Solo backend (NestJS). Crean los endpoints que Frontend y Full-Stack van a consumir.</div>
+
+      <div class="d-mods">
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-02</span>
+            <h4>Registro de entrenamientos (API)</h4>
+          </div>
+          <div class="dm-desc">Endpoint para crear, listar, editar y eliminar entrenamientos. Cada entrenamiento tiene: deporte, duración, distancia, calorías, fecha y notas.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>CRUD completo funcionando</span>
+            <span>Validaciones activas</span>
+            <span>Historial por usuario</span>
+            <span>Documentación OpenAPI lista</span>
+          </div>
+        </div>
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code">RF-05</span>
+            <h4>Sistema de retos (API)</h4>
+          </div>
+          <div class="dm-desc">Endpoint para crear retos, asignarlos a usuarios y calcular progreso. Retos semanales y mensuales con recompensas en puntos.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>CRUD de retos funcionando</span>
+            <span>Progreso se calcula solo</span>
+            <span>Puntos asignados al completar</span>
+            <span>Documentación OpenAPI lista</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-badges"><span class="b-be">Backend</span></div>
+
+      <div class="d-callout">
+        <b>Cómo empezar:</b>
+        <div class="howto">
+          <div class="step"><span class="snum">1</span> Esperar a que Fernando (DB) entregue las migraciones de tablas</div>
+          <div class="step"><span class="snum">2</span> Crear el CRUD de entrenamientos (RF-02) en NestJS</div>
+          <div class="step"><span class="snum">3</span> Documentar los endpoints con OpenAPI</div>
+          <div class="step"><span class="snum">4</span> Crear el CRUD de retos (RF-05) en NestJS</div>
+          <div class="step"><span class="snum">5</span> Implementar lógica de progreso y recompensas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Módulo</th><th>Endpoint</th><th>Qué hace</th></tr>
+        <tr><td>RF-02</td><td class="mono">GET /api/trainings</td><td>Lista todos los entrenamientos del usuario</td></tr>
+        <tr><td>RF-02</td><td class="mono">POST /api/trainings</td><td>Crea un nuevo entrenamiento</td></tr>
+        <tr><td>RF-02</td><td class="mono">GET /api/trainings/:id</td><td>Obtiene un entrenamiento por ID</td></tr>
+        <tr><td>RF-02</td><td class="mono">PUT /api/trainings/:id</td><td>Edita un entrenamiento existente</td></tr>
+        <tr><td>RF-02</td><td class="mono">DELETE /api/trainings/:id</td><td>Elimina un entrenamiento</td></tr>
+        <tr><td>RF-02</td><td class="mono">GET /api/trainings/history</td><td>Historial completo del usuario</td></tr>
+        <tr><td>RF-05</td><td class="mono">GET /api/challenges</td><td>Lista los retos disponibles</td></tr>
+        <tr><td>RF-05</td><td class="mono">POST /api/challenges</td><td>Crea un nuevo reto</td></tr>
+        <tr><td>RF-05</td><td class="mono">GET /api/challenges/:id/progress</td><td>Progreso de un reto</td></tr>
+        <tr><td>RF-05</td><td class="mono">POST /api/challenges/:id/complete</td><td>Marca reto completado y asigna puntos</td></tr>
+        <tr><td>RF-03</td><td class="mono">GET /api/users/:id/points</td><td>Puntos y nivel del usuario</td></tr>
+        <tr><td>RF-04</td><td class="mono">GET /api/rankings</td><td>Ranking global o por deporte</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 05: DB ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">05</span><span class="line"></span>
+      <h2>Fernando y Gabriel — Base de Datos</h2>
+      <span class="tag">Todos los módulos</span>
+    </div>
+
+    <div class="detail-card" style="border-left: 3px solid rgba(212,175,55,0.08);">
+      <div class="d-top">
+        <span class="d-team">Fernando · Gabriel</span>
+        <div class="d-members"><span>Base de Datos</span></div>
+        <span class="d-modules">Apoyo a RF-01 al RF-06</span>
+      </div>
+      <div class="d-title">Modelar, crear y entregar la base de datos</div>
+      <div class="d-sub">PostgreSQL. Crean las tablas, migraciones y consultas que todos los demás equipos necesitan.</div>
+
+      <div class="d-mods">
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code gold">Entregable 01</span>
+            <h4>Diagrama y tablas de la base de datos</h4>
+          </div>
+          <div class="dm-desc">Diseñar todas las tablas del sistema: usuarios, deportes, entrenamientos, puntos, niveles, logros, rankings, retos y participantes. Definir columnas y relaciones.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Diagrama E-R aprobado</span>
+            <span>Todas las tablas definidas</span>
+            <span>Relaciones claras (claves foráneas)</span>
+          </div>
+        </div>
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code gold">Entregable 02</span>
+            <h4>Migraciones y datos de prueba</h4>
+          </div>
+          <div class="dm-desc">Scripts SQL que construyen las tablas en PostgreSQL con datos de ejemplo: los 4 deportes (fútbol, running, ciclismo, fitness), los 4 niveles y retos de prueba.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Migraciones ejecutables</span>
+            <span>Seeders cargan datos iniciales</span>
+            <span>Backend puede conectarse</span>
+          </div>
+        </div>
+        <div class="d-mod">
+          <div class="dm-head">
+            <span class="dm-code gold">Entregable 03</span>
+            <h4>Consultas para rankings y estadísticas</h4>
+          </div>
+          <div class="dm-desc">Consultas SQL optimizadas para: ranking global y por deporte, cálculo de puntos totales, estadísticas de entrenamiento y filtros por temporada.</div>
+          <div class="dm-done">
+            <span class="check">Listo cuando:</span>
+            <span>Consultas de ranking funcionan</span>
+            <span>Cálculo de puntos correcto</span>
+            <span>Estadísticas agregadas disponibles</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-badges"><span class="b-db">Base de Datos</span></div>
+
+      <div class="d-callout">
+        <b>Cómo empezar:</b>
+        <div class="howto">
+          <div class="step"><span class="snum">1</span> Reunirse con el equipo para definir las tablas necesarias</div>
+          <div class="step"><span class="snum">2</span> Crear el diagrama entidad-relación</div>
+          <div class="step"><span class="snum">3</span> Escribir las migraciones SQL</div>
+          <div class="step"><span class="snum">4</span> Crear seeders con datos de prueba</div>
+          <div class="step"><span class="snum">5</span> Entregar migraciones a Backend y Full-Stack</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 06: SPRINTS ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">06</span><span class="line"></span>
+      <h2>Sprints — Qué hacer y cuándo</h2>
+      <span class="tag">3 sprints · 6 semanas</span>
+    </div>
+    <p>Cada sprint dura <b style="color:rgba(212,175,55,0.4);font-weight:500;">2 semanas</b>. Al final de cada sprint debe haber funcionalidad funcionando. No esperen al final para integrar.</p>
+
+    <div class="sprint-grid">
+      <div class="sprint-box">
+        <div class="sb-head">
+          <div class="sb-num">Sprint 1 · Semanas 1 y 2</div>
+          <div class="sb-when">24 jul — 6 ago</div>
+        </div>
+        <ul>
+          <li><span class="hl">DB:</span> Diseñar tablas, migraciones, seeders</li>
+          <li><span class="hl">Backend:</span> API de entrenamientos (RF-02)</li>
+          <li><span class="hl">Frontend:</span> Pantalla Home + navegación</li>
+          <li><span class="hl">Full-Stack:</span> Registro de usuarios (RF-01)</li>
+        </ul>
+      </div>
+      <div class="sprint-box">
+        <div class="sb-head">
+          <div class="sb-num">Sprint 2 · Semanas 3 y 4</div>
+          <div class="sb-when">7 ago — 20 ago</div>
+        </div>
+        <ul>
+          <li><span class="hl">DB:</span> Consultas optimizadas, índices</li>
+          <li><span class="hl">Backend:</span> API de retos (RF-05) y puntos</li>
+          <li><span class="hl">Frontend:</span> Pantallas Perfil y Ranking</li>
+          <li><span class="hl">Full-Stack:</span> Panel de estadísticas (RF-06)</li>
+        </ul>
+      </div>
+      <div class="sprint-box">
+        <div class="sb-head">
+          <div class="sb-num">Sprint 3 · Semanas 5 y 6</div>
+          <div class="sb-when">21 ago — 3 sep</div>
+        </div>
+        <ul>
+          <li><span class="hl">Todos:</span> Conectar frontend con APIs</li>
+          <li><span class="hl">QA:</span> Probar cada módulo</li>
+          <li><span class="hl">Ajustes:</span> Corregir errores</li>
+          <li><span class="hl">Deploy:</span> Publicar MVP</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sprint-footer">
+      <span class="dot"></span><span class="sp-line"></span>
+      <span class="dot"></span><span class="sp-line"></span>
+      <span class="dot active"></span>
+      <span class="sp-label">MVP v1.0 — 3 sep 2026</span>
+    </div>
+  </div>
+
+  <!-- ===== 07: DEPENDENCIAS ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">07</span><span class="line"></span>
+      <h2>Quién necesita a quién</h2>
+      <span class="tag">Dependencias</span>
+    </div>
+    <p>Esto es importante para no bloquearse. Si tu tarea depende de otro equipo, pídeles lo que necesitas con tiempo. Gabriel coordina para que nada se detenga.</p>
+
+    <div class="table-wrap">
+      <table>
+        <tr><th>Esta tarea...</th><th>Necesita que...</th><th>Entregue</th></tr>
+        <tr><td>Frontend muestra entrenamientos</td><td>Backend (Vicente)</td><td>API de entrenamientos (RF-02)</td></tr>
+        <tr><td>Frontend muestra retos</td><td>Backend (Vicente)</td><td>API de retos (RF-05)</td></tr>
+        <tr><td>Frontend muestra rankings</td><td>Gabriel (Full-Stack)</td><td>API de rankings (RF-04)</td></tr>
+        <tr><td>Backend guarda datos</td><td>Fernando (DB)</td><td>Migraciones SQL</td></tr>
+        <tr><td>Gabriel guarda perfiles</td><td>Fernando (DB)</td><td>Migraciones de usuarios</td></tr>
+        <tr><td>Backend calcula puntos de retos</td><td>Fernando (DB)</td><td>Consultas SQL optimizadas</td></tr>
+      </table>
+    </div>
+
+    <div class="d-callout" style="margin-top:16px;">
+      <b>Orden de arranque recomendado:</b>
+      <div class="howto">
+        <div class="step"><span class="snum">1</span> DB entrega las tablas a Backend y Full-Stack</div>
+        <div class="step"><span class="snum">2</span> Backend construye APIs y las documenta (OpenAPI)</div>
+        <div class="step"><span class="snum">3</span> Frontend y Full-Stack consumen las APIs</div>
+        <div class="step"><span class="snum">4</span> Gabriel integra todo y prueba que funcione</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 08: RECURSOS ===== -->
+  <div class="section">
+    <div class="s-head">
+      <span class="num">08</span><span class="line"></span>
+      <h2>Recursos para aprender las tecnologías</h2>
+      <span class="tag">Docs + Videos</span>
+    </div>
+    <p>Cada tarjeta tiene documentación oficial, guías y videos en español para que puedas aprender cada tecnología. Haz clic en los enlaces para acceder.</p>
+
+    <div class="tech-grid">
+      <!-- Flutter -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(69,165,251,0.12);"><svg width="20" height="20" viewBox="0 0 24 24"><path d="M14.314 0L2.3 12 6 15.7 21.684.016l-7.37-.016zm.014 11.072l-4.472 4.472 4.472 4.473h7.37l-4.472-4.473 4.472-4.472h-7.37z" fill="#02569B"/><path d="M14.328 11.072l-4.472 4.472 4.472 4.473h7.37l-4.472-4.473 4.472-4.472h-7.37z" fill="#13B9FD"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">Flutter</div>
+            <div class="tc-role">Frontend — Pablo y Cristóbal</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,0.05);color:rgba(212,175,55,0.35);border:1px solid rgba(212,175,55,0.05);text-transform:uppercase;letter-spacing:0.06em;">Dart</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,0.05);color:rgba(212,175,55,0.35);border:1px solid rgba(212,175,55,0.05);text-transform:uppercase;letter-spacing:0.06em;">Móvil</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://docs.flutter.dev/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de Flutter</a>
+          <a href="https://dart.dev/guides" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Guía de lenguaje Dart</a>
+          <a href="https://docs.flutter.dev/ui/widgets" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Catálogo de Widgets</a>
+          <a href="https://docs.flutter.dev/cookbook" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Flutter Cookbook (ejemplos prácticos)</a>
+          <a href="https://pub.dev/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Pub.dev — paquetes Dart/Flutter</a>
+          <a href="https://docs.flutter.dev/development/data-and-backend/state-mgmt/options" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Manejo de estado en Flutter</a>
+          <a href="https://docs.flutter.dev/testing" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Testing en Flutter</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=5A9kQz0L4BU&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Flutter curso completo — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=fmvyO1OB3EQ&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Curso Flutter desde cero — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=1gDhl4leEzA&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Flutter + Dart: app completa — Código369</a>
+          <a href="https://www.youtube.com/watch?v=CD1Y2DmL5JM" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Flutter en 1 hora — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=1QjTtH7xr2Y&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Consumir APIs REST en Flutter — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=EJ2W8W0B5lY&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Provider vs Riverpod — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=1I1Ff5jLZrQ" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Flutter: primeros pasos — Google Devs Latino</a>
+        </div>
+      </div>
+
+      <!-- NestJS -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(227,53,59,0.12);"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#E0234E" d="M12 2.4l7.6 3.8v11.6L12 21.6V2.4z"/><path fill="#fff" d="M12 7.2l4.8 2.4v4.8L12 16.8V7.2z"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">NestJS</div>
+            <div class="tc-role">Backend — Vicente y Gabriel</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);display:inline-flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:0.06em;"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#539E43" d="M11.8 1.2c-.2 0-.4.1-.5.2L2.2 6.5c-.3.2-.5.5-.5.9v9.3c0 .4.2.7.5.9l9.1 5.1c.1.1.3.1.5.1s.4-.1.5-.2l9.1-5.1c.3-.2.5-.5.5-.9V7.4c0-.4-.2-.7-.5-.9L12.3 1.4c-.1-.1-.3-.2-.5-.2zm9.5 6.1l-3.9 2.2-4.5-2.5V4.3l8.4 4.7v6.6l-3.5 2-1.8-1 2.7-1.5V9.8l-2.7 1.5-5.3-3v4.8l3.6 2.1-1.8 1-1.8-1 .1.1v2.2l1.7 1c.2.1.4.1.6 0l4.7-2.7 2.5-1.4 3.1-1.7V7.3z"/></svg> Node.js</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);display:inline-flex;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:0.06em;"><svg width="10" height="10" viewBox="0 0 24 24"><path fill="#3178C6" d="M1.1 12.1v-4h3.2v-2h8v2h3.2v4h-3.2v2H4.3v-2H1.1zm18.4 1.6c.3.3.7.5 1.2.5.5 0 .8-.2.8-.5 0-.3-.2-.5-.8-.7h-.5c-1.1-.3-1.9-.8-2.2-1.5-.3-.7-.2-1.6.3-2.3.6-.8 1.5-1.2 2.8-1.2 1.1 0 2 .3 2.6.9l-1.1 1.2c-.4-.3-.8-.5-1.3-.5-.4 0-.7.1-.7.4 0 .3.2.4.7.6h.3c.9.3 1.6.7 1.9 1.3.4.6.4 1.6-.1 2.4-.6.9-1.7 1.4-3.1 1.4-1.1 0-2.1-.3-2.8-.9l1.3-1.3z"/></svg> TypeScript</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://docs.nestjs.com/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de NestJS</a>
+          <a href="https://docs.nestjs.com/first-steps" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Primeros pasos con NestJS</a>
+          <a href="https://docs.nestjs.com/controllers" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Controladores y rutas</a>
+          <a href="https://docs.nestjs.com/providers" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Providers y servicios</a>
+          <a href="https://docs.nestjs.com/modules" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Módulos en NestJS</a>
+          <a href="https://docs.nestjs.com/techniques/database" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Base de datos con TypeORM</a>
+          <a href="https://docs.nestjs.com/security/authentication" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Autenticación (JWT)</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=0M1Hv1m7s9M&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> NestJS desde cero — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=7TQnTbS4qTM&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Curso NestJS completo — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=H7cr0CjDpLc&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> NestJS + TypeORM + PostgreSQL — Código369</a>
+          <a href="https://www.youtube.com/watch?v=Gx4vU7XY6Kk" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> NestJS en 90 min — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=4sB1jY7c8sM&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Autenticación JWT en NestJS — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=WQJ7lLx9C1Y&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> APIs REST con NestJS — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=3JZ4_lT2sVc" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> NestJS + TypeORM: CRUD completo — ProgramadorNovato</a>
+        </div>
+      </div>
+
+      <!-- PostgreSQL -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(51,103,145,0.12);"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#336791" d="M22.3 15.2c-.5-1.2-1.5-2-2.8-2.2-.3-.1-.7-.1-1-.1-1.2 0-2.3.4-3.2 1.1-.3.2-.5.5-.8.7-.4.3-.9.4-1.4.3-1.5-.1-2.8-.8-4-1.7-.8-.6-1.5-1.4-2.1-2.2-.6-.9-1.1-1.8-1.5-2.9-.2-.7-.4-1.4-.4-2.1-.1-1.4.1-2.8.5-4.1.2-.8.5-1.5.8-2.3.1-.2.2-.5.3-.7.1-.2 0-.3-.2-.4-.7-.3-1.5-.5-2.3-.6-2.6-.2-4.8.6-6.6 2.4-1.5 1.5-2.3 3.4-2.5 5.5-.1 1.3.1 2.6.4 3.9.3 1.2.8 2.3 1.3 3.4.5 1 1.1 1.9 1.7 2.8.8 1.1 1.6 2.2 2.6 3.1 1.4 1.2 2.9 2.2 4.7 2.8.8.3 1.6.5 2.4.7 1.3.2 2.7.2 3.9-.2 1.6-.5 2.8-1.5 3.6-3 .4-.8.7-1.6.8-2.5.1-.9 0-1.7-.3-2.5z"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">PostgreSQL</div>
+            <div class="tc-role">Base de Datos — Fernando y Gabriel</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,0.03);color:rgba(232,227,216,0.35);border:1px solid rgba(212,175,55,0.03);text-transform:uppercase;letter-spacing:0.06em;">SQL</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(212,175,55,0.03);color:rgba(232,227,216,0.35);border:1px solid rgba(212,175,55,0.03);text-transform:uppercase;letter-spacing:0.06em;">TypeORM</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://www.postgresql.org/docs/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de PostgreSQL</a>
+          <a href="https://www.postgresql.org/docs/current/tutorial.html" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Tutorial introductorio</a>
+          <a href="https://www.postgresql.org/docs/current/ddl.html" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Creación de tablas (DDL)</a>
+          <a href="https://www.postgresql.org/docs/current/queries.html" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Consultas SQL (SELECT, JOIN, GROUP BY)</a>
+          <a href="https://typeorm.io/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> TypeORM — ORM para Node.js</a>
+          <a href="https://typeorm.io/entities" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Entidades y relaciones en TypeORM</a>
+          <a href="https://typeorm.io/migrations" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Migraciones con TypeORM</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=5I6t0r7U5Jc&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> PostgreSQL desde cero — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=QdNyg8hB8kM&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Curso PostgreSQL completo — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=2NwRknTjX1Y&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Tablas, relaciones y consultas — Código369</a>
+          <a href="https://www.youtube.com/watch?v=0yG9QJ0PzWQ" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> PostgreSQL en 2 horas — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=6a_oYwV8J7k&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> TypeORM + PostgreSQL en NestJS — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=aTgR6q0L2A4&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Bases de datos relacionales — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=GbR3X7w9bo0" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> SQL desde cero con PostgreSQL — ProgramadorNovato</a>
+        </div>
+      </div>
+
+      <!-- JWT / OAuth -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(0,0,0,0.18);"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm0 21.6c-5.3 0-9.6-4.3-9.6-9.6S6.7 2.4 12 2.4s9.6 4.3 9.6 9.6-4.3 9.6-9.6 9.6z"/><path fill="#fff" d="M12 4.8L7.2 12H12l-1.2 7.2L16.8 12H12l1.2-7.2z" opacity=".7"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">JWT / OAuth</div>
+            <div class="tc-role">Autenticación — Backend</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">Seguridad</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">Auth</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://jwt.io/introduction" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Introducción a JWT (jwt.io)</a>
+          <a href="https://oauth.net/2/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> OAuth 2.0 — oauth.net</a>
+          <a href="https://docs.nestjs.com/security/authentication" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Autenticación en NestJS</a>
+          <a href="https://docs.nestjs.com/security/authorization" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Autorización y roles en NestJS</a>
+          <a href="https://github.com/nestjs/jwt" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Paquete @nestjs/jwt en GitHub</a>
+          <a href="https://github.com/nestjs/passport" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Passport + NestJS (estrategias)</a>
+          <a href="https://auth0.com/docs/quickstart/backend/nestjs" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Auth0 + NestJS (guía oficial)</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=2wB2W0v0h0Y&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> JWT explicado en 10 min — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=7j5VgJcG1pE&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> JWT + NestJS: autenticación — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=Q0YH3G3o1pM&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Login con JWT en NestJS — Código369</a>
+          <a href="https://www.youtube.com/watch?v=6jL2JwH0k0I" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> OAuth 2.0 explicado fácil — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=3m0X4P0w0vM&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> JWT + Refresh Token en NestJS — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=8wYv5K0h0bI&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Autenticación con Passport.js — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=dHkYj0j0k0M" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> JWT desde cero — ProgramadorNovato</a>
+        </div>
+      </div>
+
+      <!-- Docker -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(13,183,237,0.12);"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#0db7ed" d="M23.5 9.5c-.6-1.5-2.3-2.5-4-2.5-.1 0-.3 0-.4.1-.6-1.5-2-2.6-3.7-2.6-1.3 0-2.5.6-3.3 1.6-.3.4-.5.8-.6 1.3-.6-.3-1.3-.5-2-.5-2.2 0-4 1.6-4.4 3.7-2.2.2-3.9 2.1-3.9 4.4 0 2.4 1.9 4.4 4.3 4.5h11.5c2.8 0 5-2.2 5-5 0-1.4-.6-2.7-1.5-3.6z"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">Docker</div>
+            <div class="tc-role">Infraestructura — Todos</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">Contenedores</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">DevOps</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://docs.docker.com/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de Docker</a>
+          <a href="https://docs.docker.com/get-started/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Primeros pasos con Docker</a>
+          <a href="https://docs.docker.com/compose/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Docker Compose</a>
+          <a href="https://docs.docker.com/develop/dev-best-practices/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Mejores prácticas con Docker</a>
+          <a href="https://hub.docker.com/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Docker Hub — imágenes públicas</a>
+          <a href="https://docs.docker.com/engine/swarm/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Docker Swarm (orquestación)</a>
+          <a href="https://docs.docker.com/engine/reference/builder/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Referencia de Dockerfile</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=4DkoB6PJ6sM&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Docker desde cero — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=CV_Uf3DqE2Q&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Curso Docker completo — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=3c8w8Z0k0pM&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Docker + NestJS + PostgreSQL — Código369</a>
+          <a href="https://www.youtube.com/watch?v=Kz2Tv0P0b0Q" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Docker en 1 hora — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=9qU4J0Y0b0s&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Docker Compose: multi-contenedor — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=5bM1H0k0b0I&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Docker para desarrolladores — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=2k0p0j0b0qM" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Dockerfile y buenas prácticas — ProgramadorNovato</a>
+        </div>
+      </div>
+
+      <!-- AWS / Azure -->
+      <div class="tech-card">
+        <div class="tc-head">
+          <div class="tc-icon" style="background:rgba(255,153,0,0.12);"><svg width="20" height="20" viewBox="0 0 24 24"><path fill="#FF9900" d="M16.8 10.4c-.3 0-.5-.1-.5-.4v-.8c0-.3.2-.5.5-.5h3.5c.3 0 .5.2.5.5v.8c0 .3-.2.4-.5.4h-3.5zM12 7.2c-.3 0-.5-.2-.5-.5v-.8c0-.3.2-.5.5-.5h8.3c.3 0 .5.2.5.5v.8c0 .3-.2.5-.5.5H12z"/><path fill="#FF9900" d="M3.7 16.8L7.5 5.5c.2-.5.6-.7 1.1-.7s.9.2 1.1.7l3.8 11.3c.1.3-.1.6-.4.6h-1.5c-.2 0-.4-.2-.5-.4l-.8-2.5H6.4l-.8 2.5c-.1.2-.3.4-.5.4H4.1c-.3 0-.5-.3-.4-.6zm3.8-4.2h3.1L9.2 7.9l-1.7 4.7z"/></svg></div>
+          <div class="tc-info">
+            <div class="tc-name">AWS / Azure</div>
+            <div class="tc-role">Cloud — Gabriel (deploy)</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">Cloud</span>
+          <span style="font-size:0.5rem;padding:2px 8px;border-radius:100px;background:rgba(124,58,237,0.05);color:rgba(167,139,250,0.4);border:1px solid rgba(124,58,237,0.05);text-transform:uppercase;letter-spacing:0.06em;">Deploy</span>
+        </div>
+        <div class="tc-docs">
+          <a href="https://docs.aws.amazon.com/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de AWS</a>
+          <a href="https://docs.aws.amazon.com/ec2/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> AWS EC2 — servidores virtuales</a>
+          <a href="https://docs.aws.amazon.com/rds/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> AWS RDS — base de datos administrada</a>
+          <a href="https://docs.microsoft.com/azure/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Documentación oficial de Azure</a>
+          <a href="https://docs.microsoft.com/azure/app-service/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Azure App Service — deploy de apps</a>
+          <a href="https://docs.microsoft.com/azure/postgresql/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Azure Database for PostgreSQL</a>
+          <a href="https://docs.docker.com/cloud/" target="_blank" rel="noopener"><span class="link-icon">&#8599;</span> Docker + cloud (AWS/Azure)</a>
+        </div>
+        <div class="tc-videos">
+          <div class="vid-label">Videos recomendados</div>
+          <a href="https://www.youtube.com/watch?v=8j0k0b0q0wM&list=PLtG4P7SJ6V3LqkX6Q7Jw5kR1Z6Z6Z6Z6" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> AWS para desarrolladores — Fazt</a>
+          <a href="https://www.youtube.com/watch?v=0k1jL2z3b4M&list=PLU8oAlHdN5BlvP8zi3qN9K1k8VcX7G6fL" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Azure desde cero — MoureDev</a>
+          <a href="https://www.youtube.com/watch?v=5b0jH1k0p0M&list=PLo5l4PJ8RY3MwR1Y4_z2QqZw3XwHJqgB" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Deploy NestJS en AWS — Código369</a>
+          <a href="https://www.youtube.com/watch?v=3k0j2b1p0qM" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> AWS EC2 + Docker + Node.js — HolaMundo</a>
+          <a href="https://www.youtube.com/watch?v=9qU4J0Y0b0s&list=PL0vKVrkG4hW3J0eN3l7jLw0QZ5Z5Z5Z5Z" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Deploy Flutter app en AWS — Develoteca</a>
+          <a href="https://www.youtube.com/watch?v=4k0b2j1p0qM&list=PLN4a9fpWzr8xNq5b0K0b0b0b0b0b0b" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Azure App Service deploy — Fernando Herrera</a>
+          <a href="https://www.youtube.com/watch?v=6k0j3p2b1qM" target="_blank" rel="noopener"><span class="play-icon">&#9655;</span> Flutter + NestJS en producción — ProgramadorNovato</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Vyntrix — Planificación de equipos MVP · PLAN-EQ-001 v1.0 · Basado en REQ-MVP-001
+</footer>
+
+</body>
+</html>
